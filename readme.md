@@ -41,3 +41,13 @@ POST /api/CoinData/convert-coin-to-coin
   "toCryptoSymbol": "eth"
 }
 ```
+
+### Convert ghs to btc
+POST /api/CoinData/convert-coin-to-fiat
+{
+  "amount": 100,
+  "cryptoSymbol": "btc",
+  "toCurrency": "ghs"
+}
+
+```

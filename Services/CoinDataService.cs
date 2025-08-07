@@ -79,23 +79,26 @@ namespace background_jobs.Services
         public async Task<ConversionFiatResponseDto> ConvertCoinToFiatCurrencyAsync(ConvertCoinDto convertCoinDto)
         {
             var coin = await context.Coins.FirstOrDefaultAsync(x => x.Symbol == convertCoinDto.CryptoSymbol) ?? throw new Exception($"Coin {convertCoinDto.CryptoSymbol} not found or not supported.");
-            // Get rate of the crypto symbol (e.g., BTC)
+
+            // Get the crypto rate in USD from the cache. This is the value of 1 crypto unit in USD.
             var cryptoRate = await cache.CacheGetAsync(convertCoinDto.CryptoSymbol);
             Console.WriteLine($"Exchange rate for {convertCoinDto.CryptoSymbol} is {cryptoRate}");
 
-            // calculate fiat rate
+            // Get the fiat rate in USD from the cache. This is the value of 1 fiat unit in USD.
             var fiatRate = await cache.CacheGetAsync(convertCoinDto.ToCurrency);
             Console.WriteLine($"Exchange rate for {convertCoinDto.ToCurrency} is {fiatRate}");
 
             if (cryptoRate == null || fiatRate == null)
             {
+                // One of the rates is missing. This means the cache is incomplete or outdated.
                 throw new Exception("One or both exchange rates are missing.");
             }
 
             var cryptoRateDecimal = Convert.ToDecimal(cryptoRate);
             var fiatRateDecimal = Convert.ToDecimal(fiatRate);
 
-            // Convert the amount from crypto to fiat
+            // Convert the amount from crypto to fiat using USD as the common base currency.
+            // This formula calculates: (Crypto Amount * Crypto USD Value) / Fiat USD Value
             var convertedAmount = convertCoinDto.Amount * cryptoRateDecimal / fiatRateDecimal;
 
             return new ConversionFiatResponseDto
@@ -108,7 +111,6 @@ namespace background_jobs.Services
                 {
                     Name = coin.Name,
                     Symbol = convertCoinDto.CryptoSymbol
-
                 }
             };
         }
@@ -136,15 +138,7 @@ namespace background_jobs.Services
             }
         }
 
-        public Task<CoinDataDto> FetchCoinAsync(FetchCoinDto fetchCoinDto)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<CoinDataDto> GetCoinAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
 
 
     }
