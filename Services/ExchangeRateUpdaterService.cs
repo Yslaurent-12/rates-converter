@@ -115,7 +115,7 @@ public class ExchangeRateUpdaterService(
         catch (HttpRequestException ex)
         {
             Console.WriteLine($"Error fetching fiat rates: {ex.Message}");
-            // You might want to log this exception for further investigation.
+            
         }
     }
 }
