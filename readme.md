@@ -43,7 +43,7 @@ POST /api/CoinData/convert-coin-to-coin
 ```
 
 ### Convert ghs to btc
-POST /api/CoinData/convert-coin-to-fiat
+```http POST /api/CoinData/convert-coin-to-fiat
 {
   "amount": 100,
   "cryptoSymbol": "btc",
