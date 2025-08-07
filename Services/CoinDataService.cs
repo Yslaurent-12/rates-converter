@@ -83,7 +83,7 @@ namespace background_jobs.Services
             var cryptoRate = await cache.CacheGetAsync(convertCoinDto.CryptoSymbol);
             Console.WriteLine($"Exchange rate for {convertCoinDto.CryptoSymbol} is {cryptoRate}");
 
-            // Get rate of the target fiat currency (e.g., GHS)
+            // calculate fiat rate
             var fiatRate = await cache.CacheGetAsync(convertCoinDto.ToCurrency);
             Console.WriteLine($"Exchange rate for {convertCoinDto.ToCurrency} is {fiatRate}");
 

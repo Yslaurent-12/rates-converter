@@ -25,7 +25,8 @@ public class ExchangeRateUpdaterService(
         {
             try
             {
-                await UpdateRatesAsync();
+                await UpdateCryptoRatesAsync();
+                await UpdateFiatRatesAsync();
             }
             catch (Exception ex)
             {
@@ -40,7 +41,7 @@ public class ExchangeRateUpdaterService(
         _logger.LogInformation("ExchangeRateUpdaterService is stopping.");
     }
 
-    private async Task UpdateRatesAsync()
+    private async Task UpdateCryptoRatesAsync()
     {
         _logger.LogInformation("Fetching exchange rates...");
 
@@ -74,7 +75,47 @@ public class ExchangeRateUpdaterService(
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "An unexpected error occurred while updating rates.");
+            _logger.LogError(ex, "An unexpected error occurred while updating rates.");
+        }
+    }
+
+    private async Task UpdateFiatRatesAsync()
+    {
+        var appId = Environment.GetEnvironmentVariable("OPEN_EXCHANGE_RATES_APP_ID");  
+        if (string.IsNullOrEmpty(appId))
+        {
+            Console.WriteLine("OPEN_EXCHANGE_RATES_APP_ID environment variable is not set");
+            return;
+        }
+
+        var requestUrl = $"https://openexchangerates.org/api/latest.json?app_id={appId}";
+
+        try
+        {
+            // Better to use a static or injected HttpClient instance in production
+            using var client = new HttpClient();
+            
+            var response = await client.GetStringAsync(requestUrl);
+            var parsedResponse = JsonDocument.Parse(response);
+
+            // Get the "rates" object from the response
+            if (parsedResponse.RootElement.TryGetProperty("rates", out var rates))
+            {
+                foreach (var rate in rates.EnumerateObject())
+                {
+                    await cache.CacheSetAsync(rate.Name.ToLower(), rate.Value.ToString());
+                    Console.WriteLine($"Cached fiat rate for {rate.Name}: {rate.Value}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No 'rates' property found in the API response");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Error fetching fiat rates: {ex.Message}");
+            // You might want to log this exception for further investigation.
         }
     }
 }

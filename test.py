@@ -11,7 +11,7 @@ def update_rates():
         value = rate.get("current_price", 0)
 
         # Cache it
-        self.cache.cache_set(currency, str(value))
+        # self.cache.cache_set(currency, str(value))
 
         print("Exchange rate for %s is %s", currency, value)
 
