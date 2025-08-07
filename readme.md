@@ -25,8 +25,19 @@ Rates are stored in the cache for fast access during conversions.
 
 ### Register a Coin
 ```http
-POST /api/coins
+POST /api/CoinData/create-coin
 {
   "symbol": "btc",
   "name": "Bitcoin"
 }
+```
+
+### Convert Btc to Eth
+```http
+POST /api/CoinData/convert-coin-to-coin
+{
+  "amount":0.25,
+  "fromCryptoSymbol": "btc",
+  "toCryptoSymbol": "eth"
+}
+```
